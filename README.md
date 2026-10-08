@@ -568,168 +568,38 @@ Expected response:
 
 ---
 
-# 🔒 Local AI
+# 🖥️ Screenshots
 
-The project is designed around local AI models.
+## 💬 Customer Support Chat UI
 
-The default architecture is:
+The browser-based customer support interface allows users to interact with the AI agent using natural language.
 
-```text
-Your Browser
-     │
-     ▼
-FastAPI
-     │
-     ▼
-LangGraph
-     │
-     ├── FAISS
-     │
-     └── Ollama
-          │
-          ├── Qwen3
-          │
-          └── Nomic Embeddings
-```
-
-Your company documentation stays within the local application environment unless you explicitly deploy or modify the system otherwise.
+![Customer Support Chat UI](docs/images/chat-ui.png)
 
 ---
 
-# 🎨 Customization
+## 📖 FastAPI Swagger Documentation
 
-You can customize the project at several levels.
+The API provides an interactive Swagger UI for testing the `/chat` and `/health` endpoints.
 
-### 1. Company Information
-
-Edit:
-
-```text
-docs/
-```
-
-### 2. AI Model
-
-Edit the model configuration in:
-
-```text
-agent.py
-```
-
-For example:
-
-```python
-LLM_MODEL = "qwen3:8b"
-```
-
-### 3. Embedding Model
-
-```python
-EMBEDDING_MODEL = "nomic-embed-text"
-```
-
-### 4. Escalation Rules
-
-Modify:
-
-```python
-ESCALATION_KEYWORDS = [
-    "refund",
-    "lawsuit",
-    "fraud",
-    "billing error",
-]
-```
-
-### 5. Frontend
-
-Customize:
-
-```text
-frontend/index.html
-frontend/script.js
-```
-
-You can change the branding, colors, company name, layout, and chat experience.
+![FastAPI Swagger UI](docs/images/swagger-api.png)
 
 ---
 
-# 💡 Example Use Cases
+## 🧠 RAG-Based Customer Response
 
-This project can be adapted for:
+The agent retrieves relevant information from the company's `docs/` knowledge base and uses it to generate a response.
 
-* 🏢 Company customer support
-* 💻 SaaS support
-* 🛒 E-commerce support
-* 🏦 Internal business support
-* 🏥 Information assistants
-* 🎓 Educational support
-* 🏨 Hotel/customer service
-* 📦 Product support
-* 👩‍💻 IT help desks
-* 📚 Documentation assistants
-
-The only requirement is that the relevant information is available in your knowledge base.
+![RAG Response](docs/images/rag-response.png)
 
 ---
 
-# ⚠️ Important Notes
+## 🚨 Automatic Escalation
 
-### Knowledge Base
+Requests containing configured escalation conditions can be automatically flagged for human support.
 
-The quality of the responses depends heavily on the quality of the documents in `docs/`.
+![Escalation Response](docs/images/escalation.png)
 
-If the information is not present in the knowledge base, the agent is instructed not to invent an answer.
-
-### Model
-
-Qwen3:8b runs locally and requires sufficient system resources.
-
-If your computer has limited RAM/VRAM, consider using a smaller Ollama model.
-
-### FAISS
-
-The vector store is created from your documentation when the application initializes.
-
-If you change the documents while the application is running, restart the application so the vector store is rebuilt.
-
----
-
-# 🔮 Future Improvements
-
-Possible improvements include:
-
-* [ ] Persistent vector database
-* [ ] Automatic document re-indexing
-* [ ] Streaming responses
-* [ ] Better semantic escalation
-* [ ] Human-agent dashboard
-* [ ] Authentication
-* [ ] User accounts
-* [ ] Persistent conversation storage
-* [ ] Conversation analytics
-* [ ] RAG evaluation
-* [ ] Source citations
-* [ ] Docker support
-* [ ] Cloud deployment
-* [ ] Admin interface for uploading documents
-* [ ] Multi-company / multi-tenant support
-
----
-
-# 🤝 Contributing
-
-Contributions are welcome.
-
-If you have an idea for improving the agent:
-
-1. Fork the repository.
-2. Create a new branch.
-3. Make your changes.
-4. Test the application.
-5. Submit a pull request.
-
----
 
 # ⭐ Project Goal
 
