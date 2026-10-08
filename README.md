@@ -68,4 +68,695 @@ The application automatically loads these documents and creates a searchable kno
                   └───────────┬───────────┘
                               │
                               ▼
+                  ┌───────────────────────┐
+                  │       FastAPI         │
+                  │       /chat           │
+                  └───────────┬───────────┘
+                              │
+                              ▼
+                  ┌───────────────────────┐
+                  │      LangGraph        │
+                  │    Agent Workflow     │
+                  └───────────┬───────────┘
+                              │
+                ┌─────────────┴─────────────┐
+                │                           │
+                ▼                           ▼
+       ┌────────────────┐          ┌─────────────────┐
+       │ RAG Retrieval  │          │ Escalation Check│
+       └───────┬────────┘          └─────────────────┘
+               │
+               ▼
+       ┌────────────────┐
+       │      FAISS     │
+       │ Vector Search  │
+       └───────┬────────┘
+               │
+               ▼
+       ┌────────────────┐
+       │ Ollama         │
+       │ Embeddings     │
+       │ nomic-embed    │
+       └───────┬────────┘
+               │
+               ▼
+       ┌────────────────┐
+       │ Ollama         │
+       │ Qwen3:8b       │
+       └───────┬────────┘
+               │
+               ▼
+       ┌────────────────┐
+       │ AI Response    │
+       └────────────────┘
 ```
+
+---
+
+# 🏢 Make It Your Own
+
+This is the main feature of the project.
+
+You can turn the agent into a support bot for **any company** by changing the knowledge-base documents.
+
+You do **not** need to change the RAG implementation.
+
+You do **not** need to retrain the LLM.
+
+You simply provide your company's information in `docs/`.
+
+---
+
+## 📁 Example Company Knowledge Base
+
+Suppose you own a company called:
+
+```text
+Acme Cloud
+```
+
+You could create:
+
+```text
+docs/
+├── company.md
+├── products.md
+├── pricing.md
+├── support.md
+├── refund_policy.md
+└── faq.md
+```
+
+### `company.md`
+
+```markdown
+# Acme Cloud
+
+Acme Cloud provides cloud storage and file synchronization
+services for individuals and businesses.
+
+Website:
+https://example.com
+
+Customer support:
+support@example.com
+```
+
+### `products.md`
+
+```markdown
+# Products
+
+## Acme Drive
+
+Acme Drive provides secure cloud file storage.
+
+Storage plans:
+
+- Free: 5 GB
+- Pro: 100 GB
+- Business: 1 TB
+```
+
+### `refund_policy.md`
+
+```markdown
+# Refund Policy
+
+Customers can request a refund within 30 days of purchase.
+
+Refund requests should be submitted through customer support.
+```
+
+The agent will use these documents when answering customer questions.
+
+---
+
+# 🧠 RAG Pipeline
+
+When a customer asks:
+
+```text
+How much storage does the Pro plan provide?
+```
+
+the system performs the following:
+
+```text
+Customer Question
+       │
+       ▼
+Create Embedding
+       │
+       ▼
+FAISS Similarity Search
+       │
+       ▼
+Find Relevant Documents
+       │
+       ▼
+Retrieve Top 3 Chunks
+       │
+       ▼
+Send Context + Question
+       │
+       ▼
+Qwen3
+       │
+       ▼
+Customer Answer
+```
+
+This allows the LLM to answer using your company's actual documentation rather than relying only on its pretrained knowledge.
+
+---
+
+# 🚨 Escalation
+
+The agent also contains an escalation mechanism for potentially sensitive customer-support issues.
+
+Examples include:
+
+```text
+refund
+lawsuit
+fraud
+billing error
+data loss
+cancel account
+charge
+broken
+```
+
+For example:
+
+```text
+I was charged twice and want a refund.
+```
+
+can trigger an escalation.
+
+The API response includes:
+
+```json
+{
+  "response": "Your request has been escalated...",
+  "escalated": true
+}
+```
+
+Normal questions return:
+
+```json
+{
+  "response": "Here is the information...",
+  "escalated": false
+}
+```
+
+> The escalation keywords can be customized in `agent.py`.
+
+---
+
+# 🛠️ Technology Stack
+
+| Technology          | Purpose                 |
+| ------------------- | ----------------------- |
+| Python              | Core application        |
+| LangGraph           | Agent orchestration     |
+| LangChain           | LLM and RAG integration |
+| Ollama              | Local AI inference      |
+| Qwen3:8b            | Chat model              |
+| nomic-embed-text    | Embeddings              |
+| FAISS               | Vector search           |
+| FastAPI             | Backend API             |
+| Uvicorn             | API server              |
+| Pydantic            | Request validation      |
+| HTML/CSS/JavaScript | Web UI                  |
+
+---
+
+# 📂 Project Structure
+
+```text
+Company_customer_support_agent/
+│
+├── agent.py
+│
+├── api.py
+│
+├── docs/
+│   ├── company_info.md
+│   ├── troubleshooting.md
+│   └── ...
+│
+├── frontend/
+│   ├── index.html
+│   └── script.js
+│
+├── requirements.txt
+├── .gitignore
+└── README.md
+```
+
+---
+
+# ⚙️ Requirements
+
+Before running the project, install:
+
+* Python 3.10+
+* Ollama
+* Git
+* pip or uv
+
+---
+
+# 🦙 Install Ollama
+
+Install Ollama from:
+
+[Ollama](https://ollama.com/?utm_source=chatgpt.com)
+
+Verify the installation:
+
+```bash
+ollama --version
+```
+
+---
+
+# 📥 Download AI Models
+
+Pull the chat model:
+
+```bash
+ollama pull qwen3:8b
+```
+
+Pull the embedding model:
+
+```bash
+ollama pull nomic-embed-text
+```
+
+Check installed models:
+
+```bash
+ollama list
+```
+
+You should see:
+
+```text
+qwen3:8b
+nomic-embed-text
+```
+
+---
+
+# 🚀 Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Varsha-jaydev/Company_customer_support_agent.git
+```
+
+Enter the project:
+
+```bash
+cd Company_customer_support_agent
+```
+
+Create a virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+Activate it on Windows:
+
+```powershell
+.venv\Scripts\activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# 📝 Add Your Company Information
+
+This is the most important step.
+
+Go to:
+
+```text
+docs/
+```
+
+Remove the example documents if necessary and add your own `.md` or `.txt` files.
+
+For example:
+
+```text
+docs/
+├── company_info.md
+├── products.md
+├── pricing.md
+├── support.md
+├── policies.md
+└── faq.md
+```
+
+You can organize your documentation however you want.
+
+### Supported formats
+
+The application currently reads:
+
+```text
+.md
+.txt
+```
+
+Files can be nested inside subdirectories as well.
+
+For example:
+
+```text
+docs/
+├── company/
+│   └── information.md
+│
+├── products/
+│   ├── product_a.md
+│   └── product_b.md
+│
+└── support/
+    ├── faq.md
+    └── troubleshooting.txt
+```
+
+---
+
+# ▶️ Start the Application
+
+Run:
+
+```bash
+uvicorn api:app --reload
+```
+
+You should see:
+
+```text
+Uvicorn running on http://127.0.0.1:8000
+```
+
+---
+
+# 🌐 Open the Customer Support UI
+
+Open:
+
+```text
+http://127.0.0.1:8000/ui/
+```
+
+You will see the customer-support chat interface.
+
+You can then ask questions based on your company's documentation.
+
+Example:
+
+```text
+Customer:
+What products does your company offer?
+
+Agent:
+According to the company documentation, ...
+```
+
+---
+
+# 📖 API Documentation
+
+FastAPI automatically generates interactive API documentation.
+
+Open:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+The main endpoint is:
+
+```text
+POST /chat
+```
+
+---
+
+# 💬 API Example
+
+### Request
+
+```json
+{
+  "message": "What is your refund policy?",
+  "history": []
+}
+```
+
+### Response
+
+```json
+{
+  "response": "According to the refund policy...",
+  "escalated": false
+}
+```
+
+---
+
+# ❤️ Health Check
+
+You can check whether the API is running:
+
+```text
+GET /health
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000/health
+```
+
+Expected response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+---
+
+# 🔒 Local AI
+
+The project is designed around local AI models.
+
+The default architecture is:
+
+```text
+Your Browser
+     │
+     ▼
+FastAPI
+     │
+     ▼
+LangGraph
+     │
+     ├── FAISS
+     │
+     └── Ollama
+          │
+          ├── Qwen3
+          │
+          └── Nomic Embeddings
+```
+
+Your company documentation stays within the local application environment unless you explicitly deploy or modify the system otherwise.
+
+---
+
+# 🎨 Customization
+
+You can customize the project at several levels.
+
+### 1. Company Information
+
+Edit:
+
+```text
+docs/
+```
+
+### 2. AI Model
+
+Edit the model configuration in:
+
+```text
+agent.py
+```
+
+For example:
+
+```python
+LLM_MODEL = "qwen3:8b"
+```
+
+### 3. Embedding Model
+
+```python
+EMBEDDING_MODEL = "nomic-embed-text"
+```
+
+### 4. Escalation Rules
+
+Modify:
+
+```python
+ESCALATION_KEYWORDS = [
+    "refund",
+    "lawsuit",
+    "fraud",
+    "billing error",
+]
+```
+
+### 5. Frontend
+
+Customize:
+
+```text
+frontend/index.html
+frontend/script.js
+```
+
+You can change the branding, colors, company name, layout, and chat experience.
+
+---
+
+# 💡 Example Use Cases
+
+This project can be adapted for:
+
+* 🏢 Company customer support
+* 💻 SaaS support
+* 🛒 E-commerce support
+* 🏦 Internal business support
+* 🏥 Information assistants
+* 🎓 Educational support
+* 🏨 Hotel/customer service
+* 📦 Product support
+* 👩‍💻 IT help desks
+* 📚 Documentation assistants
+
+The only requirement is that the relevant information is available in your knowledge base.
+
+---
+
+# ⚠️ Important Notes
+
+### Knowledge Base
+
+The quality of the responses depends heavily on the quality of the documents in `docs/`.
+
+If the information is not present in the knowledge base, the agent is instructed not to invent an answer.
+
+### Model
+
+Qwen3:8b runs locally and requires sufficient system resources.
+
+If your computer has limited RAM/VRAM, consider using a smaller Ollama model.
+
+### FAISS
+
+The vector store is created from your documentation when the application initializes.
+
+If you change the documents while the application is running, restart the application so the vector store is rebuilt.
+
+---
+
+# 🔮 Future Improvements
+
+Possible improvements include:
+
+* [ ] Persistent vector database
+* [ ] Automatic document re-indexing
+* [ ] Streaming responses
+* [ ] Better semantic escalation
+* [ ] Human-agent dashboard
+* [ ] Authentication
+* [ ] User accounts
+* [ ] Persistent conversation storage
+* [ ] Conversation analytics
+* [ ] RAG evaluation
+* [ ] Source citations
+* [ ] Docker support
+* [ ] Cloud deployment
+* [ ] Admin interface for uploading documents
+* [ ] Multi-company / multi-tenant support
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome.
+
+If you have an idea for improving the agent:
+
+1. Fork the repository.
+2. Create a new branch.
+3. Make your changes.
+4. Test the application.
+5. Submit a pull request.
+
+---
+
+# ⭐ Project Goal
+
+The goal of this project is to provide a simple starting point for building **custom AI customer-support agents using local LLMs and company-specific knowledge**.
+
+Instead of building a completely new AI application for every company:
+
+```text
+Same AI Agent
+      +
+Different docs/
+      =
+Different Customer Support Agent
+```
+
+---
+
+# 👩‍💻 Author
+
+**Varsha Jaydev**
+
+GitHub:
+
+[Varsha Jaydev on GitHub](https://github.com/Varsha-jaydev?utm_source=chatgpt.com)
+
+---
+
+## ⭐ If you find this project useful
+
+Give the repository a ⭐ on GitHub and feel free to adapt it for your own company or project.
